@@ -1,0 +1,72 @@
+
+//+------------------------------------------------------------------+
+//|                                               Timer Countdown.mq5 |
+//|                       Copyright 2021, Forex Robot Easy Team      |
+//|                                    https://www.forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+#property version '1.00'
+#property strict
+
+// Global variables
+datetime barClosureTime;
+int countdownMinutes;
+int countdownSeconds;
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set the bar closure time to the current bar's closure time
+    barClosureTime = Time[0] + PeriodSeconds() - TimeCurrent() % PeriodSeconds();
+    
+    // Calculate the remaining time until the bar closure
+    countdownMinutes = (barClosureTime - TimeCurrent()) / 60;
+    countdownSeconds = (barClosureTime - TimeCurrent()) % 60;
+    
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Cleanup actions, if any
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Calculate the remaining time until the bar closure
+    countdownMinutes = (barClosureTime - TimeCurrent()) / 60;
+    countdownSeconds = (barClosureTime - TimeCurrent()) % 60;
+    
+    // Display the countdown timer prominently on the user interface
+    Comment('Bar Closure in ', countdownMinutes, ' minutes ', countdownSeconds, ' seconds');
+    
+    // Implement a progress bar to visually represent the progress of the countdown timer
+    double progress = 100.0 * (double)(barClosureTime - TimeCurrent()) / (double)PeriodSeconds();
+    ProgressBarSet(0, progress);
+    
+    // Trigger the 'Bar Closure Alert' when the countdown timer reaches zero
+    if (countdownMinutes == 0 && countdownSeconds == 0)
+    {
+        Alert('Bar Closure Alert!');
+    }
+    
+    // Continue with the normal indicator calculations
+    return(rates_total);
+}
